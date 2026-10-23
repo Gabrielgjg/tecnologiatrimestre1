@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen · Tecnología · Diseño gráfico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf9f5; --paper-line:#dedad0; --ink:#1b1b1d; --ink-soft:#5b5b5e;
+    --cyan:#00aeef; --magenta:#ec1e79; --yellow:#ffd400; --key:#17181a; --spot:#ff7a00;
+    --ok:#2f7d4a; --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Space Grotesk', system-ui, sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .mono{font-family:'JetBrains Mono', ui-monospace, monospace; letter-spacing:0.02em;}
+  button{font:inherit; color:inherit;}
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+
+  .statusbar{display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.7rem 1.5rem; border-bottom:1px solid var(--paper-line); font-size:0.85rem;}
+  .statusbar a{color:var(--ink-soft); text-decoration:none; border:1px solid var(--paper-line); padding:0.3rem 0.75rem; border-radius:var(--radius);}
+  .statusbar a:hover{border-color:var(--ink); color:var(--ink);}
+  .statusbar .who{color:var(--ink-soft);}
+  .statusbar .who strong{color:var(--ink);}
+
+  .hero{position:relative; padding:3.2rem 1.5rem 1.6rem; text-align:center; overflow:hidden;}
+  .regmark{position:absolute; width:34px; height:34px; opacity:0.55;}
+  .regmark.tl{top:14px; left:14px;} .regmark.tr{top:14px; right:14px;}
+  .regmark.bl{bottom:14px; left:14px;} .regmark.br{bottom:14px; right:14px;}
+  .hero .kicker{font-size:0.75rem; color:var(--ink-soft); margin:0 0 0.5rem;}
+  .hero h1{margin:0; font-size:clamp(1.9rem, 5vw, 3.2rem); line-height:1.05; letter-spacing:-0.02em;}
+  .hero p.sub{margin:0.6rem 0 0; color:var(--ink-soft);}
+  .colorbar{display:grid; grid-template-columns:repeat(5,1fr); max-width:560px; margin:1.6rem auto 0; border:1px solid var(--ink);}
+  .colorbar div{height:26px; position:relative;}
+  .colorbar span{position:absolute; bottom:3px; left:5px; font-size:0.55rem; color:rgba(0,0,0,0.55);}
+  .colorbar .c{background:var(--cyan);} .colorbar .m{background:var(--magenta);} .colorbar .y{background:var(--yellow);}
+  .colorbar .k{background:var(--key);} .colorbar .k span{color:rgba(255,255,255,0.6);} .colorbar .s{background:var(--spot);}
+
+  main{max-width:860px; margin:0 auto; padding:1.5rem 1.5rem 4rem;}
+  .screen{display:none;} .screen.active{display:block;}
+
+  .card{position:relative; background:#fff; border:1px solid var(--paper-line); padding:1.6rem 1.5rem; margin-bottom:1.2rem;}
+  .card::before,.card::after{content:""; position:absolute; width:16px; height:16px; border:1.5px solid var(--ink);}
+  .card::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .card::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+  .card h2{margin:0 0 0.4rem; font-size:1.4rem;}
+  .card p{margin:0.4rem 0;}
+  .rules{margin:1rem 0 1.4rem; padding-left:1.1rem; font-size:0.95rem;} .rules li{margin-bottom:0.35rem;}
+
+  .field{margin-bottom:1rem;}
+  .field label{display:block; font-size:0.75rem; color:var(--ink-soft); margin-bottom:0.3rem;}
+  .field input{width:100%; padding:0.65rem 0.7rem; border:1px solid var(--paper-line); border-radius:var(--radius); font:inherit; background:#fff;}
+  .field input:focus-visible{border-color:var(--ink);}
+  .error{color:var(--magenta); font-size:0.82rem; display:none; margin:-0.4rem 0 0.8rem;} .error.show{display:block;}
+  .notice{background:#fffbe6; border-left:3px solid var(--yellow); padding:0.6rem 0.9rem; font-size:0.85rem; margin:0.8rem 0;}
+
+  .btn{padding:0.7rem 1.3rem; border:1px solid var(--ink); background:#fff; cursor:pointer; border-radius:var(--radius); font-weight:500; transition:background 0.15s ease, color 0.15s ease;}
+  .btn:hover:not(:disabled){background:var(--ink); color:#fff;}
+  .btn.primary{background:var(--ink); color:#fff;}
+  .btn.primary:hover:not(:disabled){background:var(--magenta); border-color:var(--magenta);}
+  .btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .actions{display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:1.2rem;}
+
+  .topline{display:flex; justify-content:space-between; align-items:center; gap:1rem; font-size:0.78rem; color:var(--ink-soft); margin-bottom:0.5rem; flex-wrap:wrap;}
+  .progress{position:relative; height:12px; border:1px solid var(--ink); margin-bottom:1.2rem; background:linear-gradient(90deg, var(--cyan) 0 20%, var(--magenta) 20% 40%, var(--yellow) 40% 60%, var(--key) 60% 80%, var(--spot) 80% 100%); overflow:hidden;}
+  .progress .mask{position:absolute; top:0; bottom:0; right:0; width:100%; background:var(--paper); transition:width 0.35s ease;}
+  .chip{display:inline-flex; align-items:center; gap:0.4rem; border:1px solid var(--ink); padding:0.1rem 0.55rem; font-size:0.72rem;}
+  .chip i{display:inline-block; width:10px; height:10px; border:1px solid var(--ink);}
+
+  .case{background:#fffbe6; border-left:4px solid var(--yellow); padding:0.9rem 1rem; margin:0.8rem 0 1.1rem; font-size:0.95rem;}
+  .case .ct{font-size:0.7rem; color:var(--ink-soft); margin-bottom:0.3rem;}
+  .qtext{font-size:1.15rem; font-weight:500; margin:0.6rem 0 1rem;}
+
+  .options{display:grid; gap:0.6rem;}
+  .opt{display:flex; gap:0.8rem; align-items:flex-start; text-align:left; width:100%; padding:0.8rem 0.9rem; border:1px solid var(--paper-line); background:#fff; cursor:pointer; border-radius:var(--radius);}
+  .opt:hover:not(:disabled){border-color:var(--ink);}
+  .opt .letter{flex-shrink:0; width:26px; height:26px; border:1px solid var(--ink); display:flex; align-items:center; justify-content:center; font-size:0.78rem;}
+  .opt.sel{border-color:var(--ink); background:#f3f1ea;}
+  .opt.sel .letter{background:var(--ink); color:#fff;}
+  .opt.correct{border-color:var(--ok); background:#e7f4ec;}
+  .opt.correct .letter{background:var(--ok); color:#fff; border-color:var(--ok);}
+  .opt.wrong{border-color:var(--magenta); background:#fdeaf2;}
+  .opt.wrong .letter{background:var(--magenta); color:#fff; border-color:var(--magenta);}
+  .opt:disabled{cursor:default;}
+  .opt.dim{opacity:0.55;}
+
+  .feedback{margin-top:1.1rem; padding:1rem 1.1rem; border-left:4px solid var(--ok); background:#f4faf6; font-size:0.95rem;}
+  .feedback.bad{border-left-color:var(--magenta); background:#fff5f9;}
+  .feedback p{margin:0.35rem 0;}
+  .stamp{display:inline-block; border:2px solid var(--ok); color:var(--ok); padding:0.1rem 0.6rem; font-size:0.72rem; transform:rotate(-2deg); margin-bottom:0.4rem;}
+  .feedback.bad .stamp{border-color:var(--magenta); color:var(--magenta);}
+
+  /* Informe */
+  .sheet h2{font-size:1.6rem;}
+  .meta{font-size:0.82rem; color:var(--ink-soft);}
+  .grade-row{display:flex; gap:2rem; flex-wrap:wrap; margin:1.1rem 0; padding:1rem 0; border-top:1px solid var(--paper-line); border-bottom:1px solid var(--paper-line);}
+  .grade-row div{font-size:0.78rem; color:var(--ink-soft);}
+  .grade-row strong{display:block; font-size:2.2rem; line-height:1.1; color:var(--ink);}
+  .nivel{display:inline-block; padding:0.15rem 0.7rem; border:2px solid; font-size:0.78rem; transform:rotate(-1.5deg);}
+  .nivel.verde{color:var(--ok); border-color:var(--ok);} .nivel.amarillo{color:#a87f00; border-color:#a87f00;} .nivel.rojo{color:var(--magenta); border-color:var(--magenta);}
+  .sheet h3{margin:1.4rem 0 0.5rem; font-size:1rem;}
+  .tema-row{margin-bottom:0.8rem;}
+  .tema-row .lbl{display:flex; justify-content:space-between; gap:1rem; font-size:0.88rem; margin-bottom:0.2rem;}
+  .bar{height:14px; border:1px solid var(--ink); background:#fff;}
+  .bar span{display:block; height:100%;}
+  .sheet ul{padding-left:1.1rem; font-size:0.93rem;} .sheet li{margin-bottom:0.4rem;}
+  details{border:1px solid var(--paper-line); margin-bottom:0.5rem; background:#fff;}
+  details summary{cursor:pointer; padding:0.6rem 0.8rem; font-size:0.9rem;}
+  details .inner{padding:0.2rem 0.9rem 0.9rem; font-size:0.9rem;}
+  .send{margin-top:1rem; padding:0.7rem 0.9rem; border:1px solid var(--paper-line); font-size:0.88rem;}
+  .send.ok{border-color:var(--ok); color:var(--ok);} .send.warn{border-color:var(--magenta); color:var(--magenta);}
+
+  footer{text-align:center; font-size:0.78rem; color:var(--ink-soft); padding:1.5rem 1.5rem 2.5rem;}
+
+  @media (max-width:640px){ .card{padding:1.2rem 1rem;} .grade-row{gap:1.2rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; scroll-behavior:auto !important;} }
+  @media print{
+    .statusbar, .hero, .actions, footer, .send .btn{display:none !important;}
+    body{background:#fff;} .screen{display:none !important;} #screen-report{display:block !important;}
+    details{break-inside:avoid;} details[open] summary{font-weight:700;}
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="reg" viewBox="0 0 34 34"><circle cx="17" cy="17" r="10" fill="none" stroke="#1b1b1d" stroke-width="1.2"/><line x1="17" y1="0" x2="17" y2="34" stroke="#1b1b1d" stroke-width="1"/><line x1="0" y1="17" x2="34" y2="17" stroke="#1b1b1d" stroke-width="1"/></symbol>
+</svg>
+
+<div class="statusbar">
+  <a href="../index.html">Volver a las fichas</a>
+  <span class="who" id="who">Sin registro</span>
+</div>
+
+<header class="hero">
+  <svg class="regmark tl"><use href="#reg"/></svg><svg class="regmark tr"><use href="#reg"/></svg>
+  <svg class="regmark bl"><use href="#reg"/></svg><svg class="regmark br"><use href="#reg"/></svg>
+  <p class="kicker mono">PRUEBA DE IMPRESIÓN · TRIMESTRE 1</p>
+  <h1>Examen de Tecnología</h1>
+  <p class="sub">Diseño gráfico · 3er grado</p>
+  <div class="colorbar" aria-hidden="true">
+    <div class="c"><span class="mono">C 100</span></div><div class="m"><span class="mono">M 100</span></div>
+    <div class="y"><span class="mono">Y 100</span></div><div class="k"><span class="mono">K 100</span></div>
+    <div class="s"><span class="mono">SPOT</span></div>
+  </div>
+</header>
+
+<main>
+  <noscript><div class="notice">Este examen necesita JavaScript para funcionar.</div></noscript>
+
+  <!-- ============ BIENVENIDA ============ -->
+  <section id="screen-welcome" class="screen active">
+    <div class="card">
+      <h2>Antes de comenzar</h2>
+      <p>Este examen revisa lo que hemos trabajado en el trimestre: ciencia y tecnología, fundamentos del diseño gráfico, conceptos de diseño, el proceso de diseño y la presentación de proyectos.</p>
+      <ul class="rules">
+        <li>Son <strong>30 reactivos</strong>. Algunos parten de un caso que se lee una vez y sirve para varias preguntas.</li>
+        <li>Después de cada respuesta verás si acertaste y <strong>por qué</strong>. No puedes regresar a una pregunta ya contestada.</li>
+        <li>Al final recibirás tu <strong>informe</strong> y tus resultados se enviarán a tu maestro.</li>
+        <li>No cierres ni recargues la página mientras contestas: perderías tu avance.</li>
+      </ul>
+      <div class="notice" id="avisoConfig" hidden>Aviso para el docente: falta configurar la hoja de resultados (SHEETS_URL). Mientras tanto el examen funciona, pero no se enviará nada.</div>
+      <form id="regForm" novalidate>
+        <div class="field"><label for="nombre">Nombre completo</label><input type="text" id="nombre" autocomplete="off"></div>
+        <div class="field"><label for="grupo">Grupo (ej. 3°A)</label><input type="text" id="grupo" autocomplete="off"></div>
+        <p class="error" id="formError">Escribe tu nombre y tu grupo para continuar.</p>
+        <button class="btn primary" type="submit">Comenzar examen</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ PREGUNTA ============ -->
+  <section id="screen-question" class="screen">
+    <div class="topline"><span class="mono" id="qCount"></span><span id="qTema"></span></div>
+    <div class="progress" aria-hidden="true"><div class="mask" id="mask"></div></div>
+    <div class="card" id="qCard"></div>
+  </section>
+
+  <!-- ============ INFORME ============ -->
+  <section id="screen-report" class="screen"><div class="card sheet" id="report"></div></section>
+</main>
+
+<footer>Tecnología · Diseño gráfico, 3er grado</footer>
+
+<script>
+(function(){
+/* =========================================================
+   CONFIGURACIÓN (el docente solo debe cambiar SHEETS_URL)
+========================================================= */
+const CONFIG = {
+  SHEETS_URL: "https://script.google.com/macros/s/AKfycbygRk9A6WzIUDJGxFjJY659rdNhNQchklDIGif_iAygyiV6eDChynsv8Lxs-2tE_TMahg/exec", // URL de la aplicación web de tu Apps Script
+  JUEGO: "Examen Tecnologia T1",                    // nombre de la pestaña en tu hoja única
+  ESCALA_MIN: 5,                                    // calificación mínima de la escala (5 a 10)
+  UMBRAL_VERDE: 0.8,                                // 80% o más: verde
+  UMBRAL_AMARILLO: 0.6,                             // 60% a 79%: amarillo; menos: rojo
+  VERSION: "1.0"
+};
+
+/* =========================================================
+   TEMAS
+========================================================= */
+const TEMAS = {
+  A:{ n:"Ciencia, tecnología y herramientas", c:"var(--cyan)",
+      t:"Repasa la diferencia entre ciencia (explicar) y tecnología (aplicar el conocimiento para resolver problemas), y cómo las herramientas amplían lo que podemos hacer." },
+  B:{ n:"Fundamentos del diseño gráfico", c:"var(--magenta)",
+      t:"Vuelve a las fichas de las sesiones 1 y 2: qué es el diseño gráfico, su historia y los elementos básicos (punto, línea, forma, textura, espacio y color)." },
+  C:{ n:"Conceptos de diseño", c:"var(--yellow)",
+      t:"Repasa jerarquía visual, tipografía, color, retícula e iconografía con tu cuaderno y con la página del proyecto de tierras básicas." },
+  D:{ n:"Proceso de diseño", c:"var(--key)",
+      t:"Repasa las etapas del proceso (necesidad, investigación, boceto, producción, revisión y entrega) y para qué sirve cada una." },
+  E:{ n:"Presentación y evaluación", c:"var(--spot)",
+      t:"Repasa el guion de una exposición, los criterios de coevaluación y por qué toda evaluación debe apoyarse en evidencias." }
+};
+
+/* =========================================================
+   CASOS DE LECTURA
+========================================================= */
+const CASOS = {
+  c1:{ t:"El cartel de la cooperativa",
+       x:"La cooperativa escolar quiere vender agua de frutas en el recreo y pidió un cartel a un equipo de diseño. El equipo no habló con ellos y empezó a dibujar de inmediato. Su cartel tiene una ilustración enorme de una fruta; el nombre de la bebida, el precio y el horario aparecen en letra pequeña. Usaron cinco tipos de letra distintos y escribieron el texto en rosa sobre fondo amarillo. Al verlo, la cooperativa dijo: «Se ve bonito, pero no se entiende qué vendemos ni a qué hora»." },
+  c2:{ t:"La exposición de Los Panales",
+       x:"El equipo Los Panales presenta su set de cartas. Solo habla Mateo, que lee sus notas sin mirar al grupo. Muestran las cartas, pero no explican por qué eligieron esos colores ni cómo organizaron los elementos, y se pasan del tiempo. Después, Luis llena su coevaluación: les pone 2 (siempre) en «Materiales» a todos sus compañeros, aunque dos de ellos no llevaron material en tres sesiones, porque «son mis amigos»." },
+  c3:{ t:"Las cartas de las tierras",
+       x:"Un equipo analiza las cinco cartas de un set. Todas tienen el nombre arriba, la ilustración al centro y la caja de texto abajo, exactamente en el mismo lugar. Lo único que cambia es el color del marco (blanco, azul, negro, rojo y verde) y el símbolo del centro. Para estudiarlas, copian una carta en su cuaderno a escala 2:1, es decir, al doble de su tamaño." },
+  c4:{ t:"El GPS del teléfono",
+       x:"Un teléfono muestra el mapa y la ruta hacia la escuela gracias al GPS. El GPS funciona porque la física explica cómo viajan las señales entre los satélites y cómo medir distancias y tiempos con mucha precisión. Con ese conocimiento se construyeron satélites, receptores y aplicaciones. Hoy millones de personas lo usan y algunas aplicaciones comparten la ubicación del usuario sin que se dé cuenta." },
+  c5:{ t:"El letrero de evacuación",
+       x:"La directora de una escuela pide un letrero que indique la ruta de evacuación de un edificio. Lo verán estudiantes de 12 a 15 años y también visitas, a veces con prisa y desde lejos. El equipo de diseño busca letreros de otros edificios, hace tres bocetos distintos a lápiz y prueba el mejor mirándolo desde tres metros de distancia." }
+};
+
+/* =========================================================
+   REACTIVOS
+   o: [texto, retroalimentación]  ·  c: índice de la correcta
+   ancla: true = también estaba en el diagnóstico
+========================================================= */
+const PREGUNTAS = [
+ { id:1, caso:"c1", tema:"D", q:"¿Qué etapa del proceso de diseño se omitió y causó el problema principal?", c:1, o:[
+   ["La producción: el cartel no se imprimió bien.","El problema no es de impresión: el cartel existe, pero no comunica lo que el cliente necesitaba."],
+   ["Entender la necesidad del cliente: qué debía comunicar, a quién y dónde se vería.","Correcto. Al no hablar con el cliente, el equipo no supo que lo esencial era qué se vende, el precio y el horario. Entender la necesidad es la primera etapa del proceso."],
+   ["La entrega: no mostraron el cartel a tiempo.","El caso no habla de retrasos; el fallo viene desde el inicio, no del final."],
+   ["El boceto: debieron dibujar menos.","Dibujar menos no arregla nada. El boceto sirve para probar ideas, pero necesita partir de una necesidad clara."] ]},
+ { id:2, caso:"c1", tema:"C", q:"¿Qué problema de jerarquía visual tiene el cartel?", c:3, o:[
+   ["Hay demasiado espacio en blanco alrededor del texto.","El caso no habla de espacios vacíos. El problema es qué elemento destaca."],
+   ["Todos los elementos tienen el mismo tamaño.","Al contrario: hay un elemento enorme, la ilustración, y otros diminutos."],
+   ["La ilustración está en una posición equivocada.","La posición no es el problema principal: es el tamaño de la ilustración lo que le quita atención a la información."],
+   ["Lo más importante (qué se vende, el precio y el horario) no es lo primero que se ve, porque la ilustración domina.","Correcto. La jerarquía visual ordena qué se lee primero; aquí el dato clave quedó en segundo plano."] ]},
+ { id:3, caso:"c1", tema:"C", q:"¿Qué decisión sobre la tipografía mejoraría más la lectura?", c:0, o:[
+   ["Usar una o dos familias de letra y distinguir el título de los datos por tamaño y grosor.","Correcto. Pocas letras bien usadas dan unidad y orden; el tamaño y el grosor indican qué es lo principal."],
+   ["Usar todavía más tipos de letra para que se vea creativo.","Mezclar muchos tipos de letra desordena el mensaje y le resta unidad."],
+   ["Hacer todas las letras más pequeñas para que quepa más información.","Con letra más pequeña se lee peor, sobre todo a distancia."],
+   ["Escribir todo en mayúsculas decorativas.","Los bloques de texto en mayúsculas decorativas cuestan más trabajo de leer."] ]},
+ { id:4, caso:"c1", tema:"C", q:"El texto rosa sobre fondo amarillo se lee con dificultad. ¿Qué principio de color debió aplicar el equipo?", c:2, o:[
+   ["Usar colores más brillantes en el texto y en el fondo.","Más brillo en ambos puede cansar la vista y no resuelve el problema del contraste."],
+   ["Usar el mismo color en el texto y en el fondo, para unificar.","Si el texto y el fondo son del mismo color, el texto desaparece."],
+   ["Elegir colores con suficiente contraste entre el texto y el fondo.","Correcto. El contraste permite distinguir las letras del fondo, sobre todo a distancia."],
+   ["Elegir los colores solo por gusto personal.","En diseño el color comunica y debe ayudar a leer, no solo a gustar."] ]},
+
+ { id:5, caso:"c2", tema:"E", q:"¿Qué parte del guion de una exposición faltó principalmente?", c:2, o:[
+   ["Mostrar más cartas en pantalla.","Mostrar más no explica nada: falta el porqué de las decisiones."],
+   ["Contar la biografía de cada integrante del equipo.","La biografía no forma parte del guion; importan el proceso y las decisiones de diseño."],
+   ["Explicar qué conceptos de diseño aplicaron y por qué tomaron esas decisiones.","Correcto. Una exposición profesional no solo muestra el producto: explica el proceso y las decisiones, por ejemplo por qué ese color o esa jerarquía."],
+   ["Repetir el título del proyecto varias veces.","Repetir no agrega información."] ]},
+ { id:6, caso:"c2", tema:"E", q:"¿Qué debería hacer el equipo para repartir mejor la exposición?", c:1, o:[
+   ["Que hable solo el integrante que mejor expone.","Así el resto no demuestra lo aprendido; la exposición es del equipo."],
+   ["Que todos participen con una parte y se apoyen en sus láminas, no solo en notas leídas.","Correcto. Cuando todos participan se comparte el aprendizaje y se comunica con más claridad."],
+   ["Que lean todo el texto sin mirar al grupo.","Leer sin mirar al público reduce la comunicación."],
+   ["Que se pasen del tiempo para alcanzar a decir más.","El tiempo es una regla; organizar el mensaje para cumplirlo también forma parte de la exposición."] ]},
+ { id:7, caso:"c2", tema:"E", q:"La coevaluación de Luis tiene un problema. ¿Cuál es?", c:3, o:[
+   ["Fue demasiado estricta.","Al contrario: fue demasiado generosa con quienes no llevaron material."],
+   ["Debió evaluar solo a sí mismo.","Para eso existe la autoevaluación. En la coevaluación se evalúa a los compañeros."],
+   ["Debió poner 0 a todos para ser justo.","Poner 0 a todos sin evidencia sería igual de injusto."],
+   ["No se basó en hechos observables: calificó por amistad y no por lo que cada compañero hizo.","Correcto. Una coevaluación justa se apoya en evidencias, por ejemplo en cuántas sesiones llevó el material cada compañero."] ]},
+
+ { id:8, caso:"c3", tema:"C", q:"¿Por qué la estructura (retícula) de las cartas es idéntica en las cinco?", c:1, o:[
+   ["Porque no hubo tiempo de hacer diseños distintos.","Repetir la estructura es una decisión de diseño, no una falta de tiempo: da coherencia."],
+   ["Para que se reconozcan como una misma familia y la información esté siempre en el mismo lugar.","Correcto. Una retícula constante da identidad al conjunto y facilita encontrar los datos."],
+   ["Para ahorrar tinta.","La razón es de comunicación, no de costo."],
+   ["Para que el color sea lo único que se vea.","La retícula no oculta el color: lo ordena junto con los demás elementos."] ]},
+ { id:9, caso:"c3", tema:"C", q:"¿Qué función cumple el cambio de color del marco?", c:2, o:[
+   ["Decorar sin ninguna intención.","En un sistema como este, el color es un código y tiene intención."],
+   ["Ocultar el símbolo central.","El color no oculta el símbolo; lo acompaña."],
+   ["Indicar la categoría de la carta sin necesidad de leer el nombre.","Correcto. A esto se le llama codificación de color: cada color significa una categoría."],
+   ["Hacer más pesadas las cartas.","El color no cambia el peso; cambia lo que se comprende."] ]},
+ { id:10, caso:"c3", tema:"C", q:"En la copia a escala 2:1, la caja del título mide 3.8 cm de ancho. ¿Cuánto mide en la carta real?", c:3, o:[
+   ["7.6 cm","Multiplicaste por 2. Pero la copia ya es el doble; para llegar al tamaño real hay que dividir."],
+   ["3.8 cm","Sería la misma medida, pero la copia está al doble del tamaño real."],
+   ["0.95 cm","Dividiste entre 4. La escala 2:1 se divide entre 2."],
+   ["1.9 cm","Correcto. Escala 2:1 significa que la copia es el doble de grande; para volver a la medida real se divide entre 2: 3.8 ÷ 2 = 1.9."] ]},
+ { id:11, caso:"c3", tema:"C", q:"¿Qué característica debe tener un buen símbolo para una carta?", c:1, o:[
+   ["Tener muchos detalles para verse profesional.","Los detalles se pierden a distancia; un símbolo funciona por su simplicidad."],
+   ["Ser simple, reconocerse rápido y estar ligado a lo que representa.","Correcto. Un símbolo sintetiza una idea en una forma simple que se reconoce sin leer."],
+   ["Ser tan grande que cubra casi toda la carta.","Un símbolo demasiado grande rompe la jerarquía de la carta."],
+   ["Parecerse lo menos posible a lo que representa.","Un símbolo debe evocar la idea que comunica."] ]},
+
+ { id:12, caso:"c4", tema:"A", q:"¿Qué parte del caso corresponde a la ciencia y cuál a la tecnología?", c:2, o:[
+   ["La ciencia es el teléfono y la tecnología es la física.","Está invertido: la física es conocimiento (ciencia) y el teléfono es un producto (tecnología)."],
+   ["La ciencia y la tecnología son lo mismo.","Se relacionan, pero no son lo mismo: la ciencia busca comprender y la tecnología aplica el conocimiento para resolver problemas."],
+   ["La ciencia explica cómo viajan las señales y se miden distancias; la tecnología aplica ese conocimiento en satélites, receptores y aplicaciones.","Correcto. La ciencia explica y la tecnología aplica ese conocimiento para resolver una necesidad."],
+   ["La tecnología apareció primero y la ciencia no participó.","En este caso la tecnología se apoya directamente en el conocimiento científico."] ]},
+ { id:13, caso:"c4", tema:"A", q:"Que una aplicación comparta la ubicación de una persona sin que se dé cuenta es, sobre todo, un asunto de:", c:3, o:[
+   ["una falla del método científico.","El método científico no tiene que ver con la privacidad de la aplicación."],
+   ["diseño de íconos únicamente.","Es un asunto de ética y privacidad, no solo de íconos."],
+   ["algo irrelevante, porque la tecnología siempre es neutral.","La tecnología la diseñan y la usan personas, y sus decisiones tienen consecuencias."],
+   ["uso responsable de la tecnología: considerar la privacidad y las consecuencias para las personas.","Correcto. Usar y diseñar tecnología de forma responsable implica pensar en cómo afecta a los demás."] ]},
+ { id:14, caso:"c4", tema:"A", q:"¿Cuál de estas preguntas es principalmente tecnológica y no científica?", c:2, o:[
+   ["¿Por qué la señal de un satélite tarda un tiempo en llegar?","Es una pregunta científica: busca una explicación."],
+   ["¿Cómo se formaron los continentes?","Es una pregunta científica: busca explicar un fenómeno natural."],
+   ["¿Cómo podemos diseñar una aplicación que indique la ruta más corta?","Correcto. Es una pregunta tecnológica: busca crear una solución a un problema."],
+   ["¿Por qué cambian las estaciones del año?","Es una pregunta científica: busca explicar un fenómeno."] ]},
+
+ { id:15, caso:"c5", tema:"D", q:"¿Para qué sirve que el equipo busque letreros de otros edificios?", c:2, o:[
+   ["Para copiar uno exactamente.","Un referente orienta; copiar sin analizar no resuelve la necesidad propia."],
+   ["Para evitar hacer bocetos.","Investigar no sustituye a bocetar: ambas etapas se complementan."],
+   ["Para conocer convenciones y soluciones existentes y decidir mejor, sin copiar.","Correcto. Investigar referentes ayuda a entender qué funciona y por qué, y a proponer algo propio."],
+   ["Para decidir cuánto va a costar el letrero.","La investigación de referentes busca ideas y convenciones, no precios."] ]},
+ { id:16, caso:"c5", tema:"D", q:"¿Por qué conviene hacer varios bocetos antes de la versión final?", c:1, o:[
+   ["Porque el boceto es el diseño definitivo.","El boceto es preliminar; la versión final viene después."],
+   ["Porque un boceto es rápido de cambiar y permite comparar ideas antes de invertir tiempo y materiales.","Correcto. Bocetar es una forma barata de probar y comparar ideas."],
+   ["Para que el cliente no opine.","Mostrar bocetos sirve justamente para recibir opiniones a tiempo."],
+   ["Porque el reglamento lo exige.","Se hace porque ayuda a mejorar el resultado, no por obligación."] ]},
+ { id:17, caso:"c5", tema:"D", q:"Probar el letrero desde tres metros de distancia permite evaluar principalmente su:", c:2, o:[
+   ["costo de producción.","Mirar el letrero a tres metros no dice nada del costo."],
+   ["cantidad de materiales usados.","La distancia no mide materiales."],
+   ["funcionalidad y claridad: si se entiende a la distancia real de uso.","Correcto. Evaluar una propuesta incluye comprobar si cumple su función y si se entiende en las condiciones reales."],
+   ["fecha de entrega.","La fecha de entrega no se comprueba mirando el letrero."] ]},
+ { id:18, caso:"c5", tema:"C", q:"Para que el letrero lo entienda cualquier persona, también visitantes de otros países, ¿qué conviene usar?", c:3, o:[
+   ["Solo texto largo en un idioma.","Una frase larga se lee lento y excluye a quien no domina ese idioma."],
+   ["Ilustraciones decorativas muy detalladas.","Los detalles distraen y no ayudan a entender la ruta."],
+   ["Colores tenues sobre fondo claro.","Con poco contraste cuesta leer, sobre todo con prisa."],
+   ["Pictogramas y flechas simples, con buen contraste.","Correcto. Los símbolos simples se entienden rápido, en cualquier idioma, y el contraste ayuda a verlos de lejos."] ]},
+
+ { id:19, tema:"B", q:"¿Qué describe mejor al diseño gráfico?", c:0, o:[
+   ["Organizar imágenes y textos para comunicar un mensaje a un público y resolver un problema de comunicación.","Correcto. El diseño gráfico existe para comunicar con un propósito, no solo para decorar."],
+   ["Dibujar bonito sin importar el mensaje.","La estética importa, pero el diseño gráfico existe para comunicar."],
+   ["Usar computadoras para hacer imágenes.","Se puede diseñar a mano o con herramientas digitales; lo esencial es el propósito."],
+   ["Imprimir carteles.","Imprimir es una etapa de producción; el diseño es la solución visual del mensaje."] ]},
+ { id:20, tema:"B", q:"¿Qué hizo posible la imprenta en la historia del diseño?", c:1, o:[
+   ["Eliminar la necesidad de imágenes.","Al contrario: ayudó a difundir imágenes y textos."],
+   ["Reproducir un mismo diseño muchas veces y dar origen a la tipografía como arte de diseñar letras.","Correcto. La imprenta permitió repetir diseños en grandes cantidades y desarrolló el diseño de las letras."],
+   ["Hacer que cada diseño fuera único e irrepetible.","Lo característico fue justo lo contrario: poder repetirlos."],
+   ["Reemplazar a los jeroglíficos en Egipto.","Los jeroglíficos son mucho más antiguos que la imprenta."] ]},
+ { id:21, tema:"B", q:"Las pinturas rupestres, los jeroglíficos y los logotipos actuales tienen en común que:", c:2, o:[
+   ["todos se hacen con computadora.","Las pinturas rupestres y los jeroglíficos son miles de años anteriores a las computadoras."],
+   ["todos se crearon en la misma época.","Pertenecen a épocas muy distintas."],
+   ["todos usan imágenes o símbolos para comunicar ideas.","Correcto. Cambian las herramientas y las épocas, pero el propósito de comunicar con imágenes se mantiene."],
+   ["todos sirven solo para decorar.","Su función principal es comunicar, no solo decorar."] ]},
+ { id:22, tema:"B", q:"Alrededor de un título hay una zona vacía que ayuda a que se lea mejor. ¿A qué elemento básico del diseño corresponde?", c:1, o:[
+   ["Textura","La textura es cómo se ve o se siente una superficie."],
+   ["Espacio","Correcto. El espacio vacío también comunica: da respiro y hace destacar lo importante."],
+   ["Punto","Un punto es una marca mínima, no una zona vacía."],
+   ["Línea","La línea une puntos; no es una zona vacía."] ]},
+ { id:23, tema:"B", q:"Una diseñadora empieza con lápiz y papel y luego pasa su idea a la computadora. ¿Qué muestra esto?", c:3, o:[
+   ["Que el lápiz ya no sirve.","El lápiz sigue siendo muy útil para explorar ideas rápido."],
+   ["Que la computadora hace el diseño sola.","La computadora es una herramienta; las decisiones las toma la persona."],
+   ["Que hay que elegir una sola herramienta para todo.","Las herramientas se combinan según lo que se necesite en cada etapa."],
+   ["Que las herramientas tradicionales y las digitales se complementan en el proceso.","Correcto. El boceto a mano permite explorar ideas rápido y la computadora ayuda a terminar y reproducir la pieza."] ]},
+ { id:24, tema:"B", q:"Quieres que el fondo de un cartel parezca una tela rugosa. ¿Qué elemento básico usarías principalmente?", c:2, o:[
+   ["Punto","Un punto es una marca mínima; no describe una superficie."],
+   ["Línea recta","Una línea recta no produce la sensación de una superficie rugosa."],
+   ["Textura","Correcto. La textura es cómo se ve o se siente una superficie, por ejemplo rugosa o lisa."],
+   ["Espacio vacío","El espacio vacío no representa materiales."] ]},
+
+ { id:25, tema:"D", ancla:true, q:"El proceso de diseño gráfico sigue, de manera general, la secuencia:", c:1, o:[
+   ["Producción → Boceto → Necesidad → Investigación","Empieza por la producción, que es una etapa final."],
+   ["Necesidad → Investigación → Boceto → Producción → Revisión → Presentación","Correcto. Primero se entiende la necesidad y se investiga; luego se bocetea, se produce, se revisa y se presenta."],
+   ["Revisión → Presentación → Necesidad → Boceto","La revisión y la presentación van al final, no al inicio."],
+   ["Boceto → Presentación → Investigación → Producción","No se puede bocetar antes de entender la necesidad ni presentar antes de producir."] ]},
+ { id:26, tema:"C", ancla:true, q:"Un logotipo que combina un símbolo gráfico y un texto (nombre de marca) se conoce como:", c:3, o:[
+   ["Pictograma","Un pictograma es una imagen simplificada que representa una idea u objeto."],
+   ["Isotipo","Un isotipo es solo el símbolo, sin texto."],
+   ["Boceto","El boceto es un dibujo preliminar, no un tipo de logotipo."],
+   ["Imagotipo","Correcto. Un imagotipo combina símbolo y texto."] ]},
+ { id:27, tema:"C", ancla:true, q:"La tipografía se refiere a:", c:3, o:[
+   ["El proceso de imprimir un cartel","Imprimir es producción; la tipografía se refiere a las letras."],
+   ["El color de fondo de un diseño","El color de fondo no es tipografía."],
+   ["La cantidad de imágenes en un cartel","La cantidad de imágenes no tiene que ver con la tipografía."],
+   ["El estilo y diseño de las letras utilizadas en una composición","Correcto. La tipografía es el diseño y el uso de las letras."] ]},
+ { id:28, tema:"C", ancla:true, q:"La identidad visual de una marca o proyecto puede incluir:", c:1, o:[
+   ["Solamente el precio del producto","El precio no forma parte de la identidad visual."],
+   ["Nombre, logotipo, colores y tipografía","Correcto. La identidad visual es el conjunto de elementos que representan a una marca o proyecto."],
+   ["Únicamente el nombre del cliente","El nombre es uno de los elementos, pero no el único."],
+   ["La fecha de entrega del proyecto","La fecha de entrega no forma parte de la identidad visual."] ]},
+ { id:29, tema:"A", ancla:true, q:"En tecnología, se dice que las herramientas, máquinas e instrumentos son una extensión de las capacidades humanas porque:", c:2, o:[
+   ["Sustituyen completamente al ser humano","No lo sustituyen por completo: amplían lo que la persona puede hacer."],
+   ["Solo sirven para fabricar objetos de arte","Sirven para muchísimas necesidades, no solo para el arte."],
+   ["Amplían o facilitan lo que el cuerpo humano puede hacer por sí solo","Correcto. Un martillo amplía la fuerza de la mano y un telescopio amplía la vista."],
+   ["No tienen relación con las necesidades humanas","Se crean justamente para satisfacer necesidades humanas."] ]},
+ { id:30, tema:"E", q:"¿Cuál es la mejor razón para hacer una autoevaluación?", c:3, o:[
+   ["Ponerme la calificación más alta posible.","La autoevaluación pierde sentido si no es honesta."],
+   ["Compararme con mis amigos.","Se trata de mi propio desempeño, no de competir."],
+   ["Evitar que otras personas me califiquen.","La autoevaluación complementa a la coevaluación y a la heteroevaluación, no las sustituye."],
+   ["Reconocer con evidencias qué hice bien y qué debo mejorar.","Correcto. La autoevaluación sirve para mejorar, y por eso debe apoyarse en hechos."] ]}
+];
+const POR_ID = {}; PREGUNTAS.forEach(function(p){ POR_ID[p.id] = p; });
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+const $ = function(id){ return document.getElementById(id); };
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function barajar(a){ var b = a.slice(); for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; } return b; }
+function uuid(){ if(window.crypto && crypto.randomUUID){ return crypto.randomUUID(); } return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2); }
+function configurado(){ return typeof CONFIG.SHEETS_URL === "string" && CONFIG.SHEETS_URL.indexOf("http") === 0; }
+function fmtTiempo(s){ var m = Math.floor(s/60), r = s%60; return m + ":" + (r<10?"0":"") + r; }
+function show(name){ ["welcome","question","report"].forEach(function(n){ $("screen-"+n).classList.toggle("active", n===name); }); window.scrollTo(0,0); }
+
+var alumno = null, estado = null, seleccion = null;
+var LETRAS = ["A","B","C","D"];
+
+/* =========================================================
+   REGISTRO E INICIO
+========================================================= */
+$("avisoConfig").hidden = configurado();
+$("regForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var n = $("nombre").value.trim(), g = $("grupo").value.trim();
+  if(!n || !g){ $("formError").classList.add("show"); return; }
+  alumno = { nombre:n, grupo:g };
+  $("who").innerHTML = "<strong>" + esc(n) + "</strong> · Grupo " + esc(g);
+  iniciar();
+});
+
+function nuevoPlan(){
+  var bloques = [], porCaso = {};
+  PREGUNTAS.forEach(function(p){
+    if(p.caso){ (porCaso[p.caso] = porCaso[p.caso] || []).push(p.id); } else { bloques.push([p.id]); }
+  });
+  Object.keys(porCaso).forEach(function(k){ bloques.push(porCaso[k]); });
+  var orden = []; barajar(bloques).forEach(function(b){ orden = orden.concat(b); });
+  var opciones = {};
+  PREGUNTAS.forEach(function(p){ opciones[p.id] = barajar(p.o.map(function(_,i){ return i; })); });
+  return { orden:orden, opciones:opciones };
+}
+
+function iniciar(){
+  estado = { plan:nuevoPlan(), resp:{}, id:uuid(), tAcum:0, tMarca:Date.now(), terminado:false, resultado:null, envio:null };
+  window.onbeforeunload = function(e){ if(estado && !estado.terminado){ e.preventDefault(); e.returnValue = ""; } };
+  mostrarPregunta();
+}
+function tick(){ var now = Date.now(); estado.tAcum += Math.min(now - estado.tMarca, 300000); estado.tMarca = now; }
+function setProgreso(hechas){ $("mask").style.width = (100 - (hechas / PREGUNTAS.length) * 100) + "%"; }
+
+/* =========================================================
+   PREGUNTAS
+========================================================= */
+function mostrarPregunta(){
+  var idx = estado.plan.orden.findIndex(function(id){ return !estado.resp[id]; });
+  if(idx === -1){ terminar(); return; }
+  var p = POR_ID[estado.plan.orden[idx]];
+  seleccion = null;
+  var total = PREGUNTAS.length;
+  $("qCount").textContent = "PRUEBA " + String(idx+1).padStart(2,"0") + " / " + total;
+  $("qTema").innerHTML = '<span class="chip mono"><i style="background:' + TEMAS[p.tema].c + '"></i>' + esc(TEMAS[p.tema].n) + '</span>';
+  setProgreso(idx);
+
+  var caso = p.caso ? '<div class="case"><div class="ct mono">CASO · ' + esc(CASOS[p.caso].t.toUpperCase()) + '</div>' + esc(CASOS[p.caso].x) + '</div>' : "";
+  var orden = estado.plan.opciones[p.id];
+  var opts = orden.map(function(oi, pos){
+    return '<button type="button" class="opt" role="radio" aria-checked="false" data-i="' + oi + '"><span class="letter mono">' + LETRAS[pos] + '</span><span>' + esc(p.o[oi][0]) + '</span></button>';
+  }).join("");
+  $("qCard").innerHTML = caso + '<div class="qtext">' + esc(p.q) + '</div><div class="options" id="options" role="radiogroup" aria-label="Opciones de respuesta">' + opts + '</div>' +
+    '<div id="fbBox" aria-live="polite"></div><div class="actions"><button type="button" class="btn primary" id="btnResponder" disabled>Responder</button><button type="button" class="btn primary" id="btnSiguiente" style="display:none"></button></div>';
+
+  $("options").addEventListener("click", function(e){
+    var b = e.target.closest(".opt"); if(!b || b.disabled) return;
+    seleccion = parseInt(b.getAttribute("data-i"), 10);
+    document.querySelectorAll(".opt").forEach(function(x){ var on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", on ? "true" : "false"); });
+    $("btnResponder").disabled = false;
+  });
+  $("btnResponder").addEventListener("click", function(){ responder(p); });
+  show("question");
+}
+
+function responder(p){
+  if(seleccion === null) return;
+  tick();
+  var ok = seleccion === p.c;
+  estado.resp[p.id] = { sel:seleccion, ok:ok };
+  document.querySelectorAll(".opt").forEach(function(b){
+    var i = parseInt(b.getAttribute("data-i"), 10);
+    b.disabled = true; b.classList.remove("sel");
+    if(i === p.c){ b.classList.add("correct"); }
+    else if(i === seleccion){ b.classList.add("wrong"); }
+    else { b.classList.add("dim"); }
+  });
+  var fb;
+  if(ok){
+    fb = '<div class="feedback"><span class="stamp mono">APROBADO PARA IMPRESIÓN</span><p>' + esc(p.o[p.c][1]) + '</p></div>';
+  } else {
+    fb = '<div class="feedback bad"><span class="stamp mono">CORRECCIÓN DE PRUEBA</span>' +
+         '<p><strong>Tu respuesta:</strong> ' + esc(p.o[seleccion][1]) + '</p>' +
+         '<p><strong>La respuesta correcta es:</strong> «' + esc(p.o[p.c][0]) + '»</p><p>' + esc(p.o[p.c][1].replace(/^Correcto\.\s*/, "")) + '</p></div>';
+  }
+  $("fbBox").innerHTML = fb;
+  setProgreso(Object.keys(estado.resp).length);
+  $("btnResponder").style.display = "none";
+  var quedan = PREGUNTAS.length - Object.keys(estado.resp).length;
+  var bs = $("btnSiguiente"); bs.style.display = ""; bs.textContent = quedan === 0 ? "Ver mi informe" : "Siguiente";
+  bs.addEventListener("click", mostrarPregunta);
+  bs.focus();
+}
+
+document.addEventListener("keydown", function(e){
+  if(!$("screen-question").classList.contains("active")) return;
+  var tag = document.activeElement ? document.activeElement.tagName : "";
+  if(tag === "INPUT" || tag === "TEXTAREA") return;
+  var bs = $("btnSiguiente"), br = $("btnResponder");
+  if(e.key === "Enter"){
+    if(bs && bs.style.display !== "none"){ e.preventDefault(); mostrarPregunta(); }
+    else if(br && !br.disabled){ e.preventDefault(); br.click(); }
+    return;
+  }
+  var k = e.key.toLowerCase(), pos = "abcd".indexOf(k);
+  if(pos === -1 && "1234".indexOf(k) !== -1) pos = parseInt(k, 10) - 1;
+  if(pos !== -1 && br && br.style.display !== "none"){
+    var btns = document.querySelectorAll(".opt"); if(btns[pos]) btns[pos].click();
+  }
+});
+
+/* =========================================================
+   RESULTADOS
+========================================================= */
+function calcular(){
+  var total = PREGUNTAS.length, aciertos = 0, porTema = {}, anclas = { ok:0, total:0 }, falladas = [], respuestas = [];
+  Object.keys(TEMAS).forEach(function(t){ porTema[t] = { ok:0, total:0 }; });
+  PREGUNTAS.forEach(function(p){
+    var r = estado.resp[p.id];
+    porTema[p.tema].total++; if(p.ancla) anclas.total++;
+    if(r && r.ok){ aciertos++; porTema[p.tema].ok++; if(p.ancla) anclas.ok++; } else { falladas.push(p.id); }
+    respuestas.push(p.id + ":" + (r ? r.sel : "-"));
+  });
+  var pct = aciertos / total;
+  var cal = CONFIG.ESCALA_MIN + pct * (10 - CONFIG.ESCALA_MIN);
+  var nivel = pct >= CONFIG.UMBRAL_VERDE ? "verde" : (pct >= CONFIG.UMBRAL_AMARILLO ? "amarillo" : "rojo");
+  return { total:total, aciertos:aciertos, pct:pct, cal:cal, nivel:nivel, seg:Math.round(estado.tAcum/1000), porTema:porTema, anclas:anclas, falladas:falladas, respuestas:respuestas };
+}
+
+function terminar(){
+  if(!estado.resultado){ tick(); estado.resultado = calcular(); estado.terminado = true; estado.fecha = new Date().toISOString(); window.onbeforeunload = null; }
+  mostrarInforme();
+  if(estado.envio !== "ok") enviarResultados();
+}
+
+function mensajeNivel(n){
+  if(n === "verde") return "Dominas lo trabajado en el trimestre. ¡Muy buen resultado!";
+  if(n === "amarillo") return "Vas bien. Con un repaso de los temas marcados mejorarás tu resultado.";
+  return "Todavía hay conceptos por reforzar. No te desanimes: revisa tu cuaderno y las fichas, y pide apoyo a tu maestro.";
+}
+function etiquetaNivel(n){ return n === "verde" ? "NIVEL SÓLIDO" : (n === "amarillo" ? "EN PROCESO" : "REFORZAR"); }
+
+function mostrarInforme(){
+  var r = estado.resultado, pct = Math.round(r.pct * 100);
+  var fecha = new Date(estado.fecha).toLocaleString("es-MX", { dateStyle:"long", timeStyle:"short" });
+  var barras = "", fuertes = [], reforzar = [];
+  Object.keys(TEMAS).forEach(function(t){
+    var d = r.porTema[t], pt = d.total ? d.ok / d.total : 0;
+    barras += '<div class="tema-row"><div class="lbl"><span>' + esc(TEMAS[t].n) + '</span><span class="mono">' + d.ok + ' / ' + d.total + '</span></div>' +
+              '<div class="bar"><span style="width:' + Math.round(pt*100) + '%; background:' + TEMAS[t].c + '"></span></div></div>';
+    if(pt >= 0.8) fuertes.push('<li><strong>' + esc(TEMAS[t].n) + ':</strong> ' + d.ok + ' de ' + d.total + ' aciertos. Lo dominas bien.</li>');
+    if(pt < 0.6) reforzar.push('<li><strong>' + esc(TEMAS[t].n) + ':</strong> ' + d.ok + ' de ' + d.total + ' aciertos. ' + esc(TEMAS[t].t) + '</li>');
+  });
+  var errores = PREGUNTAS.filter(function(p){ return !(estado.resp[p.id] && estado.resp[p.id].ok); }).map(function(p){
+    var sel = estado.resp[p.id] ? estado.resp[p.id].sel : null;
+    return '<details><summary>Reactivo ' + p.id + ' · ' + esc(TEMAS[p.tema].n) + '</summary><div class="inner">' +
+      (p.caso ? '<p class="mono" style="font-size:0.72rem;color:var(--ink-soft)">CASO · ' + esc(CASOS[p.caso].t.toUpperCase()) + '</p>' : '') +
+      '<p><strong>' + esc(p.q) + '</strong></p>' +
+      (sel !== null ? '<p>Tu respuesta: «' + esc(p.o[sel][0]) + '». ' + esc(p.o[sel][1]) + '</p>' : '') +
+      '<p>Respuesta correcta: «' + esc(p.o[p.c][0]) + '». ' + esc(p.o[p.c][1].replace(/^Correcto\.\s*/, "")) + '</p></div></details>';
+  }).join("");
+
+  $("report").innerHTML =
+    '<p class="kicker mono" style="margin:0;color:var(--ink-soft);font-size:0.75rem">HOJA DE CONTROL DE CALIDAD</p>' +
+    '<h2>Informe final</h2>' +
+    '<p class="meta">' + esc(alumno.nombre) + ' · Grupo ' + esc(alumno.grupo) + ' · ' + esc(fecha) + ' · Tiempo: ' + fmtTiempo(r.seg) + '</p>' +
+    '<div class="grade-row"><div>Aciertos<strong>' + r.aciertos + ' / ' + r.total + '</strong></div><div>Porcentaje<strong>' + pct + '%</strong></div><div>Calificación<strong>' + r.cal.toFixed(1) + '</strong></div>' +
+    '<div>Nivel<br><span class="nivel mono ' + r.nivel + '">' + etiquetaNivel(r.nivel) + '</span></div></div>' +
+    '<p>' + esc(mensajeNivel(r.nivel)) + '</p>' +
+    '<h3>Resultados por tema</h3>' + barras +
+    '<h3>Tus fortalezas</h3>' + (fuertes.length ? '<ul>' + fuertes.join("") + '</ul>' : '<p>Aún no hay un tema con 80% o más de aciertos. Con el repaso lo lograrás.</p>') +
+    '<h3>Para reforzar</h3>' + (reforzar.length ? '<ul>' + reforzar.join("") + '</ul>' : '<p>Ningún tema quedó por debajo de 60%. ¡Bien!</p>') +
+    '<h3>Preguntas que ya estaban en el diagnóstico</h3><p>Acertaste <strong>' + r.anclas.ok + ' de ' + r.anclas.total + '</strong> de las preguntas que también respondiste al inicio del curso.</p>' +
+    '<h3>Revisión de tus errores</h3>' + (errores || '<p>No tuviste errores. ¡Excelente!</p>') +
+    '<div class="send" id="sendBox"></div>' +
+    '<div class="actions"><button type="button" class="btn" id="btnReintentar" style="display:none">Reintentar envío</button>' +
+    '<button type="button" class="btn" id="btnImprimir">Imprimir o guardar PDF</button>' +
+    '<button type="button" class="btn" id="btnOtro">Hacer otro intento</button></div>';
+  $("btnReintentar").addEventListener("click", enviarResultados);
+  $("btnImprimir").addEventListener("click", function(){ window.print(); });
+  $("btnOtro").addEventListener("click", function(){ if(confirm("¿Hacer otro intento? Se registrará como un envío nuevo.")) iniciar(); });
+  pintarEnvio();
+  show("report");
+}
+
+/* =========================================================
+   ENVÍO A GOOGLE SHEETS
+========================================================= */
+function pintarEnvio(){
+  var box = $("sendBox"), btn = $("btnReintentar"); if(!box) return;
+  var msgs = {
+    "no-config":["warn","Envío desactivado: falta configurar la hoja de resultados (aviso para el docente)."],
+    "enviando":["","Enviando tus resultados a tu maestro…"],
+    "ok":["ok","Resultados enviados a tu maestro."],
+    "error":["warn","El servidor respondió con un error. Pulsa «Reintentar envío»."],
+    "sin-confirmacion":["warn","No pude confirmar el envío. Revisa tu conexión y pulsa «Reintentar envío». Si ya se había enviado, no se duplicará."]
+  };
+  var m = msgs[estado.envio] || msgs["enviando"];
+  box.className = "send " + m[0]; box.textContent = m[1];
+  btn.style.display = (estado.envio === "error" || estado.envio === "sin-confirmacion") ? "" : "none";
+}
+
+function armarPayload(){
+  var r = estado.resultado;
+  return {
+    juego: CONFIG.JUEGO, version: CONFIG.VERSION, idEnvio: estado.id, fecha: estado.fecha,
+    nombre: alumno.nombre, grupo: alumno.grupo,
+    aciertos: r.aciertos, total: r.total, porcentaje: Math.round(r.pct * 100), calificacion: Number(r.cal.toFixed(1)), nivel: r.nivel, segundos: r.seg,
+    temaA: r.porTema.A.ok, temaB: r.porTema.B.ok, temaC: r.porTema.C.ok, temaD: r.porTema.D.ok, temaE: r.porTema.E.ok,
+    anclas: r.anclas.ok, falladas: r.falladas.join(","), respuestas: r.respuestas.join("|")
+  };
+}
+
+function enviarResultados(){
+  if(!configurado()){ estado.envio = "no-config"; pintarEnvio(); return; }
+  estado.envio = "enviando"; pintarEnvio();
+  fetch(CONFIG.SHEETS_URL, { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify(armarPayload()) })
+    .then(function(res){
+      return res.json().then(function(j){ return !!(j && j.ok); }).catch(function(){ return res.ok; });
+    })
+    .then(function(ok){ estado.envio = ok ? "ok" : "error"; pintarEnvio(); })
+    .catch(function(){ estado.envio = "sin-confirmacion"; pintarEnvio(); });
+}
+})();
+</script>
+</body>
+</html>
